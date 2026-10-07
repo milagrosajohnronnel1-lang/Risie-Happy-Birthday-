@@ -265,4 +265,148 @@ function Pix(w,h){
   const hs=[['left:4%;top:28%','0s'],['right:2%;top:14%','1.1s'],['left:40%;top:0','2.2s']]
     .map(([pos,d])=>heart.replace('class="heart"',`class="heart" style="${pos};animation-delay:${d}"`)).join('');
   document.getElementById('bearWrap').innerHTML=hs+
-   `<svg class="bear" viewBox="0 0 ${W} ${H}" shape-rendering="crispEdges" role="img" aria-label="A p
+   `<svg class="bear" viewBox="0 0 ${W} ${H}" shape-rendering="crispEdges" role="img" aria-label="A pixel teddy bear holding a gift and waving">
+     ${B.rects(pal)}<g class="armA">${A.rects(pal)}</g><g class="armB">${R.rects(pal)}</g><g class="eyes">${E.rects(pal)}</g></svg>`;
+})();
+
+</script>
+<script>
+/* ---------- Layered city with twinkling windows ---------- */
+const cv=document.getElementById('city'),ctx=cv.getContext('2d'),wc=document.getElementById('wins'),wx=wc.getContext('2d'),lights=document.getElementById('lights');
+let wins=[],CW=0,CH=0;
+const still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+function rng(s){return()=>(s=s*16807%2147483647)/2147483647}
+function drawCity(){
+  const dpr=Math.min(devicePixelRatio||1,2),W=innerWidth*1.25,H=innerHeight;CW=W;CH=H;
+  [cv,wc].forEach(c=>{c.width=W*dpr;c.height=H*dpr});
+  ctx.setTransform(dpr,0,0,dpr,0,0);wx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+  lights.innerHTML='';wins=[];
+  const sc=Math.max(.7,Math.min(1.3,innerWidth/900));
+  const layers=[
+    {seed:11,min:.14,max:.34,w:[34,80],top:'#5b3f8f',bot:'#8a4d95',win:0,  k:0,  fog:.30},
+    {seed:23,min:.10,max:.27,w:[30,70],top:'#3a2a6b',bot:'#5a3478',win:.12,k:.5, fog:.26},
+    {seed:37,min:.06,max:.20,w:[28,64],top:'#1c1440',bot:'#2c1a4d',win:.28,k:.8, fog:.18},
+    {seed:51,min:.03,max:.12,w:[34,90],top:'#0d0922',bot:'#140c2b',win:.38,k:1,  fog:0}
+  ];
+  layers.forEach((L,li)=>{
+    const r=rng(L.seed);let x=-20;
+    while(x<W){
+      const bw=(L.w[0]+r()*(L.w[1]-L.w[0]))*sc,bh=H*(L.min+r()*(L.max-L.min)),y=H-bh;
+      const g=ctx.createLinearGradient(0,y,0,H);g.addColorStop(0,L.top);g.addColorStop(1,L.bot);ctx.fillStyle=g;ctx.fillRect(x,y,bw+1,bh);
+      if(r()<.3){const tw=bw*(.4+r()*.3),th=8+r()*22;ctx.fillRect(x+(bw-tw)/2,y-th,tw,th)}
+      if(r()<.2){ctx.fillRect(x+bw/2-1,y-24-r()*18,2,40)}
+      ctx.fillStyle='rgba(255,190,240,.07)';ctx.fillRect(x+bw*.82,y,bw*.18,bh);
+      if(L.win){const cw=9*sc,ch=13*sc;
+        for(let wy=y+10;wy<H-8;wy+=ch)for(let wx2=x+6;wx2<x+bw-8;wx2+=cw)if(r()<L.win)
+          wins.push({x:wx2,y:wy,w:3.2*sc,h:5*sc,k:L.k,s:.3+r()*1.4,p:r()*6.28,c:r()<.8?'#ffd678':'#ffa0dc'});
+      }
+      if(li===3&&r()<.3&&lights.childElementCount<14){
+        const d=document.createElement('i');d.className='blink';d.style.left=(x+r()*bw)+'px';d.style.top=(y+6)+'px';d.style.animationDelay=(r()*2)+'s';lights.appendChild(d);
+      }
+      x+=bw+(r()<.3?4:0);
+    }
+    if(L.fog){const f=ctx.createLinearGradient(0,H*.55,0,H);f.addColorStop(0,'rgba(215,115,190,0)');f.addColorStop(1,`rgba(215,115,190,${L.fog})`);ctx.fillStyle=f;ctx.fillRect(0,H*.55,W,H*.45)}
+  });
+  renderWins(0);
+}
+function renderWins(t){
+  wx.clearRect(0,0,CW,CH);
+  for(const w of wins){
+    wx.globalAlpha=w.k*(still?.8:.12+.88*(.5+.5*Math.sin(t*w.s+w.p)));
+    wx.fillStyle=w.c;wx.fillRect(w.x,w.y,w.w,w.h);
+  }
+  wx.globalAlpha=1;
+}
+let last=0;function loop(ms){if(ms-last>66){last=ms;renderWins(ms/1000)}requestAnimationFrame(loop)}
+drawCity();window.__city=1;if(!still)requestAnimationFrame(loop);
+let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(drawCity,150)});
+
+</script>
+<script>
+/* ---------- Music: cheerful buzzy "Happy Birthday" loop (Web Audio) ---------- */
+const Music=(()=>{
+  let a,master,timer,on=false,muted=false,noise;
+  const beat=.4,len=24*beat,F={G4:392,A4:440,B4:493.88,C5:523.25,D5:587.33,E5:659.25,F5:698.46,G5:783.99};
+  const mel=[['G4',.75],['G4',.25],['A4',1],['G4',1],['C5',1],['B4',2],['G4',.75],['G4',.25],['A4',1],['G4',1],['D5',1],['C5',2],
+             ['G4',.75],['G4',.25],['G5',1],['E5',1],['C5',1],['B4',1],['A4',1],['F5',.75],['F5',.25],['E5',1],['C5',1],['D5',1],['C5',2]];
+  const C=[130.8,[261.6,329.6,392]],G=[98,[246.9,293.7,392]],Fm=[87.3,[220,261.6,349.2]],bars=[C,G,G,C,C,Fm,Fm,C];
+  function tone(f,t,d,type,vol,det,lp){
+    const o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.value=f;o.detune.value=det||0;
+    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.015);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+    let n=o;if(lp){const q=a.createBiquadFilter();q.type='lowpass';q.frequency.value=lp;o.connect(q);n=q}
+    n.connect(g);g.connect(master);o.start(t);o.stop(t+d+.05);
+  }
+  function hat(t,v){const s=a.createBufferSource(),h=a.createBiquadFilter(),g=a.createGain();s.buffer=noise;h.type='highpass';h.frequency.value=7000;
+    g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+.05);s.connect(h);h.connect(g);g.connect(master);s.start(t);s.stop(t+.06)}
+  function schedule(t0){
+    let t=t0;mel.forEach(([n,b])=>{const d=Math.max(b*beat*.9,.12);
+      tone(F[n],t,d,'sawtooth',.045,-7,2600);tone(F[n],t,d,'sawtooth',.045,7,2600);tone(F[n]*2,t,d*.6,'triangle',.02,0);t+=b*beat});
+    bars.forEach(([root,ch],i)=>{const bt=t0+i*3*beat;
+      tone(root,bt,beat*.9,'triangle',.26,0);
+      [1,2].forEach(k=>ch.forEach(f=>tone(f,bt+k*beat,beat*.5,'square',.018,0,1800)));});
+    for(let i=0;i<48;i++)hat(t0+i*beat/2,i%2?.012:.025);
+  }
+  function loop(t){schedule(t);timer=setTimeout(()=>loop(t+len),(len-1.2)*1000)}
+  return{
+    start(){if(on)return;try{const A=window.AudioContext||window.webkitAudioContext;a=new A();master=a.createGain();master.gain.value=muted?0:.8;master.connect(a.destination);
+      noise=a.createBuffer(1,a.sampleRate*.1,a.sampleRate);const d=noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+      on=true;if(a.state==='suspended')a.resume();loop(a.currentTime+.1)}catch(e){on=false}},
+    stop(){if(!on)return;on=false;clearTimeout(timer);const c=a;master.gain.setTargetAtTime(0,c.currentTime,.2);setTimeout(()=>c.close(),900)},
+    toggle(){muted=!muted;if(on)master.gain.setTargetAtTime(muted?0:.8,a.currentTime,.1);return muted}
+  };
+})();
+
+</script>
+<script>
+/* ---------- Opening: cake falls layer by layer ---------- */
+const start=document.getElementById('start'),gift=document.getElementById('gift'),btn=document.getElementById('giftBtn');
+let confetti=[],busy=true,timers=[];
+const later=(fn,ms)=>timers.push(setTimeout(fn,ms));
+function playIntro(){
+  document.documentElement.classList.add('ready');
+  start.classList.remove('play');void start.offsetWidth;start.classList.add('play');
+  busy=true;later(()=>{busy=false},3900);
+}
+later(playIntro,350);
+setTimeout(()=>{busy=false},4500);
+
+/* ---------- Transition: 180° turn, city fly-by, then the next page ---------- */
+let opening=false;
+btn.addEventListener('click',()=>{
+  if(opening)return;opening=true;                       // works any time, even during the cake intro
+  try{btn.classList.add('shake');Music.start()}catch(e){}   // audio must start inside the tap
+  later(open,600);
+});
+function showGift(){gift.classList.remove('off');gift.classList.add('in')}
+function open(){
+  try{applyGreeting()}catch(e){}
+  document.body.classList.add('opened');   // camera glides along the city
+  start.classList.add('off');              // opening page turns 180° and leaves
+  later(showGift,3000);                    // city is shown first
+  later(showGift,3800);                    // safety: make sure the wish page appears
+  later(party,4300);
+}
+function party(){
+  const cols=['#ffe78a','#ff82d8','#9f8cff','#78eaff','#fff'];
+  for(let i=0;i<70;i++){
+    const c=document.createElement('div');c.className='confetti';
+    c.style.left=Math.random()*100+'vw';c.style.background=cols[i%5];
+    c.style.animationDuration=(3+Math.random()*3)+'s';c.style.animationDelay=(Math.random()*2)+'s';
+    document.body.appendChild(c);confetti.push(c);
+  }
+  later(clearConfetti,14000);
+}
+function clearConfetti(){confetti.forEach(c=>c.remove());confetti=[]}
+function replay(){
+  timers.forEach(clearTimeout);timers=[];clearConfetti();Music.stop();busy=true;
+  document.body.classList.remove('opened');
+  gift.classList.add('off');gift.classList.remove('in');   // turns back 180°
+  later(()=>{applyGreeting();btn.classList.remove('shake');start.classList.remove('play');start.classList.remove('off');opening=false},2200);
+  later(playIntro,3600);
+}
+const muteBtn=document.getElementById('muteBtn');
+muteBtn.addEventListener('click',()=>{muteBtn.textContent=Music.toggle()?'🔇':'🎵'});
+document.getElementById('replayBtn').addEventListener('click',replay);
+</script>
+</body>
+</html>
