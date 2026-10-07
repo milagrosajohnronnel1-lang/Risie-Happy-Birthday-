@@ -53,7 +53,7 @@ h1{margin:6px 0 8px;font-weight:600;font-size:clamp(32px,9vw,68px);line-height:1
 .sub{font-size:clamp(17px,4.6vw,26px);color:#f4ecff;margin:0 0 10px;text-shadow:0 2px 4px #080611,0 0 12px rgba(205,145,255,.8)}
 .msg{max-width:560px;margin:4px auto 16px;font-size:clamp(16px,4.2vw,23px);line-height:1.5;color:#fff7dc;
  text-shadow:0 2px 4px rgba(0,0,0,.75),0 0 12px rgba(126,66,166,.8)}
-button{font:600 18px 'Fredoka',system-ui,sans-serif;cursor:pointer;border:1px solid var(--gold);border-radius:999px;padding:13px 30px;color:var(--ink);
+button{touch-action:manipulation;-webkit-tap-highlight-color:transparent;font:600 18px 'Fredoka',system-ui,sans-serif;cursor:pointer;border:1px solid var(--gold);border-radius:999px;padding:13px 30px;color:var(--ink);
  background:linear-gradient(135deg,#ffe78a,#ffd05d);box-shadow:0 0 18px rgba(255,224,114,.6),0 8px 25px rgba(0,0,0,.45);transition:transform .2s}
 button:hover{transform:translateY(-2px)}button:active{transform:scale(.95)}
 button:focus-visible{outline:3px solid #fff;outline-offset:6px}
@@ -265,5 +265,4 @@ function Pix(w,h){
   const hs=[['left:4%;top:28%','0s'],['right:2%;top:14%','1.1s'],['left:40%;top:0','2.2s']]
     .map(([pos,d])=>heart.replace('class="heart"',`class="heart" style="${pos};animation-delay:${d}"`)).join('');
   document.getElementById('bearWrap').innerHTML=hs+
-   `<svg class="bear" viewBox="0 0 ${W} ${H}" shape-rendering="crispEdges" role="img" aria-label="A pixel teddy bear holding a gift and waving">
-     ${B.rects(pal)}<g
+   `<svg class="bear" viewBox="0 0 ${W} ${H}" shape-rendering="crispEdges" role="img" aria-label="A p
