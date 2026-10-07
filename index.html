@@ -171,8 +171,8 @@ body.opened .mute{opacity:1;pointer-events:auto;transition:opacity .6s 3.2s}
     <p class="hello rise" style="--d:.8s" data-hello></p>
     <h1 class="rise" style="--d:.95s">Happy 18th Birthday<br>Risie! 💜</h1>
     <div class="msg rise" style="--d:1.1s">
-      Welcome to 18! 🌙✨ <span data-wish></span><br>
-      <b>Enjoy your special day, Risie! 🎂💜</b>
+      18 kana hehe😅🥳! 🌙✨ <span data-wish></span><br>
+      <b>I made this for this special day, happy birthday Risie! 🎂💜</b>
     </div>
     <button class="rise" style="--d:1.3s" id="replayBtn">Replay 🔄</button>
   </section>
@@ -184,10 +184,10 @@ body.opened .mute{opacity:1;pointer-events:auto;transition:opacity .6s 3.2s}
 /* ---------- Time-aware greetings ---------- */
 function moment(){
   const h=new Date().getHours();
-  if(h>=5&&h<12)  return {hello:"Good morning, Risie ☀️",   sub:"Today is all about you ✨",        wish:"May your morning be the first of many bright, happy days ahead."};
-  if(h>=12&&h<18) return {hello:"Good afternoon, Risie 🌤️", sub:"Today is all about you ✨",        wish:"May the rest of your day be filled with laughter, cake and sweet surprises."};
-  if(h>=18&&h<22) return {hello:"Good evening, Risie 🌆",   sub:"Tonight is all about you ✨",      wish:"May this evening glow with happiness, good company and beautiful memories."};
-  return            {hello:"Hello, night owl 🌙",            sub:"Even the stars are up for you ✨", wish:"May this new chapter be filled with happiness, beautiful memories and amazing moments."};
+  if(h>=5&&h<12)  return {hello:"Good morning, Risie ☀️",   sub:"Today is all about you ✨",        wish:"Though hindi naman kita kayang kausapi in personal hehe😅😆, I just want to tell you happy birthday🥳🎂❤️, and I hope you appreciate this :) -∆-"};
+  if(h>=12&&h<18) return {hello:"Good afternoon, Risie 🌤️", sub:"Today is all about you ✨",        wish:"Though hindi naman kita kayang kausapi in personal hehe😅😆, I just want to tell you happy birthday🥳🎂❤️, and I hope you appreciate this :) -∆-"}"};
+  if(h>=18&&h<22) return {hello:"Good evening, Risie 🌆",   sub:"Tonight is all about you ✨",      wish:"Though hindi naman kita kayang kausapi in personal hehe😅😆, I just want to tell you happy birthday🥳🎂❤️, and I hope you appreciate this :) -∆-"}"};
+  return            {hello:"Hello, Risieeeeeeee😆😆😆 🌙",            sub:"happy birthday", wish:"May this new chapter be filled with happiness, beautiful memories and amazing moments."};
 }
 function applyGreeting(){
   const m=moment();
